@@ -82,6 +82,9 @@ function OwnerSession:_handleRequestBuild(buildableName: string)
 
 	self._maid:GiveTask(TycoonTemplateUtils.promiseTemplate():Then(function(tycoonTemplate: Folder)
 		local template = TycoonTemplateUtils.getBuildableTemplateByName(tycoonTemplate, buildableName)
+		if not template then
+			return
+		end
 
 		if not self:IsBuildableBuilt(template.Name) then
 			self:InstantiateBuildable(template)

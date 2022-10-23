@@ -20,7 +20,7 @@ function TycoonTemplateUtils.getBuildableTemplates(tycoonTemplate: Folder): {Fol
 	return tycoonTemplate:GetChildren()
 end
 
-function TycoonTemplateUtils.getBuildableTemplateByName(tycoonTemplate: Folder, name: string): Model?
+function TycoonTemplateUtils.getBuildableTemplateByName(tycoonTemplate: Folder, name: string): Folder?
 	return tycoonTemplate:FindFirstChild(name)
 end
 
