@@ -11,7 +11,7 @@ local TycoonTemplateUtils = require("TycoonTemplateUtils")
 
 local TycoonTemplateBuildableUtils = {}
 
-function TycoonTemplateBuildableUtils.instantiateFromTemplateServer(
+function TycoonTemplateBuildableUtils.instantiateFromTemplate(
 	buildableBinder,
 	session: Folder,
 	buildableTemplate: Folder
@@ -37,6 +37,10 @@ function TycoonTemplateBuildableUtils.getTemplateOffset(buildableTemplate: Model
 	-- TODO: Ugly reach-around parenting hacks!
 	local root = TycoonTemplateUtils.getRoot(buildableTemplate.Parent)
 	return root:ToObjectSpace(buildableTemplate:GetPivot())
+end
+
+function TycoonTemplateBuildableUtils.doesStartUnlocked(buildableTemplate: Model)
+	return buildableTemplate:GetAttribute("StartUnlocked") == true
 end
 
 return TycoonTemplateBuildableUtils

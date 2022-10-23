@@ -10,16 +10,20 @@ local Maid = require("Maid")
 local TycoonBindersServer = require("TycoonBindersServer")
 local TycoonSpawnUtils = require("TycoonSpawnUtils")
 local RxPlayerUtils = require("RxPlayerUtils")
+local PlayerDataStoreService = require("PlayerDataStoreService")
 
 local TycoonService = {}
 
 function TycoonService:Init(serviceBag)
 	self._serviceBag = assert(serviceBag, "No serviceBag")
 
+	self._maid = Maid.new()
+
+	-- External.
+	self._serviceBag:GetService(PlayerDataStoreService)
+
 	-- Internal.
 	self._tycoonBinders = self._serviceBag:GetService(TycoonBindersServer)
-
-	self._maid = Maid.new()
 end
 
 function TycoonService:Start()

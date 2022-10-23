@@ -6,12 +6,17 @@
 
 local require = require(script.Parent.loader).load(script)
 
+local DATASTORE_SUB_KEY = "Session"
+local DATASTORE_KEY_BUILT = "BuiltBuildables"
+
 local OwnerSessionBase = require("OwnerSessionBase")
 local TycoonTemplateUtils = require("TycoonTemplateUtils")
 local TycoonTemplateBuildableUtils = require("TycoonTemplateBuildableUtils")
 local TycoonBindersServer = require("TycoonBindersServer")
 local OwnerSessionConstants = require("OwnerSessionConstants")
 local LinkUtils = require("LinkUtils")
+local PlayerDataStoreService = require("PlayerDataStoreService")
+local ObservableSet = require("ObservableSet")
 
 local OwnerSession = setmetatable({}, OwnerSessionBase)
 OwnerSession.ClassName = "OwnerSession"
@@ -22,20 +27,9 @@ function OwnerSession.new(obj, serviceBag)
 
 	self._serviceBag = assert(serviceBag, "No serviceBag")
 	self._tycoonBinders = self._serviceBag:GetService(TycoonBindersServer)
+	self._playerDataStoreService = self._serviceBag:GetService(PlayerDataStoreService)
 
 	self._cframe = self._obj.Parent.CFrame
-
-	self._maid:GiveTask(TycoonTemplateUtils.promiseTemplate():Then(function(tycoonTemplate: Folder)
-		-- HACK: Spawn in all automatically owned buildables.
-		for _, buildableTemplate in TycoonTemplateUtils.getBuildableTemplates(tycoonTemplate) do
-			if buildableTemplate:GetAttribute("StartUnlocked") ~= true then
-				-- TODO: HACK!!!!!
-				-- Replace with a proper utils call. Maybe some kind of template interface.
-				continue
-			end
-			self:InstantiateBuildable(buildableTemplate)
-		end
-	end))
 
 	-- Remoting.
 	self._remoteEvent = Instance.new("RemoteEvent")
@@ -47,17 +41,74 @@ function OwnerSession.new(obj, serviceBag)
 		self:_handleRequest(...)
 	end))
 
+	-- Save/load buildables!
+	-- TODO: Split into separate container.
+	self._buildableSet = ObservableSet.new()
+	self._maid:GiveTask(self._buildableSet)
+
+	self._maid:GivePromise(self:_promiseDataStore()):Then(function(dataStore)
+		return dataStore
+			:Load(DATASTORE_KEY_BUILT, {})
+			:Then(function(built: { string })
+				-- Get all saved buildables, copy it into the set.
+				for _, uuid in built do
+					self._buildableSet:Add(uuid)
+				end
+			end)
+			:Then(function()
+				-- Then, when the set changes, copy back into the key.
+				-- Hopefully this doesn't trigger some weird recursive update loop thing.
+				local function updateSaved()
+					dataStore:Store(DATASTORE_KEY_BUILT, self._buildableSet:GetList())
+				end
+				self._maid:GiveTask(self._buildableSet.ItemAdded:Connect(updateSaved))
+				self._maid:GiveTask(self._buildableSet.ItemRemoved:Connect(updateSaved))
+			end)
+	end)
+
+	self._maid:GivePromise(TycoonTemplateUtils.promiseTemplate():Then(function(tycoonTemplate: Folder)
+		-- Insert all of our default buildables into the set.
+		-- TODO: Make this cleaner. Don't save default buildables?????
+		for _, buildableTemplate in TycoonTemplateUtils.getBuildableTemplates(tycoonTemplate) do
+			if TycoonTemplateBuildableUtils.doesStartUnlocked(buildableTemplate) then
+				self._buildableSet:Add(buildableTemplate.Name)
+			end
+		end
+
+		-- Create all buildables!
+		self._maid:GiveTask(self._buildableSet:ObserveItemsBrio():Subscribe(function(brio)
+			local buildableName: string = brio:GetValue()
+			local maid = brio:ToMaid()
+
+			local template = TycoonTemplateUtils.getBuildableTemplateByName(tycoonTemplate, buildableName)
+			if not template then
+				warn(("[OwnerSession] Buildable '%s' is missing its template!"):format(buildableName))
+				return
+			end
+
+			maid:GiveTask(
+				TycoonTemplateBuildableUtils.instantiateFromTemplate(self._tycoonBinders.Buildable, self._obj, template)
+			)
+		end))
+	end))
+
 	return self
+end
+
+function OwnerSession:InsertBuildable(buildableName: string)
+	TycoonTemplateUtils.promiseTemplate():Then(function(tycoonTemplate: Folder)
+		-- Check that the template is valid *before* we add it!
+		local template = TycoonTemplateUtils.getBuildableTemplateByName(tycoonTemplate, buildableName)
+		if not template then
+			return
+		end
+
+		self._buildableSet:Add(buildableName)
+	end)
 end
 
 function OwnerSession:GetPlayer(): Player
 	return LinkUtils.getLinkValue("Player", self._obj)
-end
-
-function OwnerSession:InstantiateBuildable(template: Model)
-	self._maid:GiveTask(
-		TycoonTemplateBuildableUtils.instantiateFromTemplateServer(self._tycoonBinders.Buildable, self._obj, template)
-	)
 end
 
 function OwnerSession:_handleRequest(player: Player, requestType: string, ...)
@@ -71,25 +122,19 @@ function OwnerSession:_handleRequest(player: Player, requestType: string, ...)
 	end
 
 	if requestType == OwnerSessionConstants.REQUEST_BUILD then
-		self:_handleRequestBuild(...)
-	end
-end
-
-function OwnerSession:_handleRequestBuild(buildableName: string)
-	if typeof(buildableName) ~= "string" then
-		return
-	end
-
-	self._maid:GiveTask(TycoonTemplateUtils.promiseTemplate():Then(function(tycoonTemplate: Folder)
-		local template = TycoonTemplateUtils.getBuildableTemplateByName(tycoonTemplate, buildableName)
-		if not template then
+		local buildableName: string = ...
+		if typeof(buildableName) ~= "string" then
 			return
 		end
 
-		if not self:IsBuildableBuilt(template.Name) then
-			self:InstantiateBuildable(template)
-		end
-	end))
+		self:InsertBuildable(buildableName)
+	end
+end
+
+function OwnerSession:_promiseDataStore()
+	return self._playerDataStoreService:PromiseDataStore(self:GetPlayer()):Then(function(store)
+		return store:GetSubStore(DATASTORE_SUB_KEY)
+	end)
 end
 
 return OwnerSession
