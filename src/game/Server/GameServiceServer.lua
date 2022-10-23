@@ -12,11 +12,10 @@ function GameServiceServer:Init(serviceBag)
 	self._serviceBag = assert(serviceBag, "No serviceBag")
 
 	-- External.
+	self._serviceBag:GetService(require("HideBindersServer"))
 	self._serviceBag:GetService(require("TycoonService"))
 end
 
-function GameServiceServer:Start()
-	
-end
+function GameServiceServer:Start() end
 
 return GameServiceServer
