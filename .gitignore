@@ -1,0 +1,15 @@
+.DS_store
+.vscode/
+
+/*.rbxl
+/*.rbxlx
+
+*.rbxlx.lock
+*.rbxl.lock
+
+build/
+
+DevPackages/
+Packages/
+
+build.rbxl

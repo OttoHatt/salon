@@ -1,0 +1,70 @@
+{
+	"name": "salon",
+	"tree": {
+		"$className": "DataModel",
+		"Workspace": {
+			"$ignoreUnknownInstances": true,
+			"$className": "Workspace",
+			"$properties": {
+				"StreamingEnabled": true,
+				"StreamOutBehavior": "Opportunistic",
+				"UnionsScaleNonuniformly": {
+					"Enum": 2
+				}
+			}
+		},
+		"ServerScriptService": {
+			"$className": "ServerScriptService",
+			"$ignoreUnknownInstances": true,
+			"$path": "game/scripts/Server",
+			"Salon": {
+				"$className": "Folder",
+				"node_modules": {
+					"$className": "Folder",
+					"@quenty": {
+						"$path": "lib/nevermore/"
+					},
+					"@evenmore": {
+						"$path": "lib/evenmore/"
+					},
+					"@ottohatt": {
+						"$path": "src/"
+					}
+				}
+			}
+		},
+		"StarterPlayer": {
+			"$className": "StarterPlayer",
+			"$ignoreUnknownInstances": true,
+			"StarterPlayerScripts": {
+				"$className": "StarterPlayerScripts",
+				"$ignoreUnknownInstances": true,
+				"$path": "game/scripts/Client"
+			}
+		},
+		"ReplicatedStorage": {
+			"$className": "ReplicatedStorage",
+			"$ignoreUnknownInstances": true,
+			"Wally": {
+				"$path": "Packages/"
+			},
+			"WallyDev": {
+				"$path": "DevPackages/"
+			}
+		},
+		"SoundService": {
+			"$className": "SoundService",
+			"$ignoreUnknownInstances": true,
+			"$properties": {
+				"RespectFilteringEnabled": true
+			}
+		},
+		"Chat": {
+			"$className": "Chat",
+			"$ignoreUnknownInstances": true,
+			"$properties": {
+				"BubbleChatEnabled": true
+			}
+		}
+	}
+}
