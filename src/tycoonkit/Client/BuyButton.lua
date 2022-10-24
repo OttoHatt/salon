@@ -12,6 +12,9 @@ local require = require(script.Parent.loader).load(script)
 local SOUND_BUTTON_ON = "rbxassetid://10066942189"
 local SOUND_BUTTON_OFF = "rbxassetid://10066936758"
 
+local Players = game:GetService("Players")
+local LocalizationService = game:GetService("LocalizationService")
+
 local Blend = require("Blend")
 local BaseObject = require("BaseObject")
 local CharacterUtils = require("CharacterUtils")
@@ -21,6 +24,10 @@ local Rx = require("Rx")
 local Maid = require("Maid")
 local ValueObject = require("ValueObject")
 local TycoonBindersClient = require("TycoonBindersClient")
+local RxInstanceUtils = require("RxInstanceUtils")
+local TycoonTemplateUtils = require("TycoonTemplateUtils")
+local TycoonTemplateBuildableUtils = require("TycoonTemplateBuildableUtils")
+local NumberLocalizationUtils = require("NumberLocalizationUtils")
 
 local BuyButton = setmetatable({}, BaseObject)
 BuyButton.ClassName = "BuyButton"
@@ -35,9 +42,11 @@ function BuyButton.new(obj, serviceBag)
 	self._touchingPartsSet = ObservableSet.new()
 	self._maid:GiveTask(self._touchingPartsSet)
 
-	self._maid:GiveTask(self:GetOwnerSession():ObserveBuildableExists(self:GetTargetBuildableName()):Subscribe(function(exists)
-		self:_handleTargetBuilt(exists)
-	end))
+	self._maid:GiveTask(
+		self:GetOwnerSession():ObserveBuildableExists(self:GetTargetBuildableName()):Subscribe(function(exists)
+			self:_handleTargetBuilt(exists)
+		end)
+	)
 
 	return self
 end
@@ -51,6 +60,13 @@ function BuyButton:GetTargetBuildableName()
 	return self._obj.Name
 end
 
+function BuyButton:PromiseTemplate()
+	-- TODO: Ew!!
+	return TycoonTemplateUtils.promiseTemplate():Then(function(tycoonTemplate: Folder)
+		return TycoonTemplateUtils.getBuildableTemplateByName(tycoonTemplate, self:GetTargetBuildableName())
+	end)
+end
+
 function BuyButton:GetOwnerSession()
 	-- TODO: Genericise this!!!!
 	return BinderUtils.findFirstAncestor(self._tycoonBinders.OwnerSession, self._obj)
@@ -62,9 +78,6 @@ function BuyButton:_handleTargetBuilt(isBuilt: boolean)
 
 		local depressedValue = ValueObject.fromObservable(self:_observeDepressed())
 		maid:GiveTask(depressedValue)
-
-		local rootPartValue = Blend.State(nil)
-		maid:GiveTask(rootPartValue)
 
 		local BUTTON_HEIGHT = 0.4
 		local BUTTON_RISE_HEIGHT = 0.3
@@ -88,7 +101,6 @@ function BuyButton:_handleTargetBuilt(isBuilt: boolean)
 					CFrame = baseCFrame,
 					Size = Vector3.new(BUTTON_HEIGHT, 3.5, 3.5),
 					Shape = Enum.PartType.Cylinder,
-					[Blend.Instance] = rootPartValue,
 					[Blend.Children] = {
 						Blend.New("Sound")({
 							SoundId = SOUND_BUTTON_ON,
@@ -116,18 +128,6 @@ function BuyButton:_handleTargetBuilt(isBuilt: boolean)
 								end)
 							end)] = true,
 						}),
-						Blend.New("BillboardGui")({
-							Adornee = rootPartValue,
-							Size = UDim2.new(4, 0, 4, 0),
-							StudsOffsetWorldSpace = Vector3.new(-3, 0, 0),
-							ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
-							[Blend.Children] = {
-								Blend.New"Frame" {
-									Size = UDim2.new(1, 0, 1, 0),
-									BackgroundTransparency = 1,
-								}
-							}
-						}),
 					},
 				}),
 				-- Moving part.
@@ -153,6 +153,78 @@ function BuyButton:_handleTargetBuilt(isBuilt: boolean)
 					),
 					Size = Vector3.new(BUTTON_HEIGHT, 2.6, 2.6),
 					Shape = Enum.PartType.Cylinder,
+					[Blend.Children] = {
+						-- Label.
+						if self:GetOwnerSession():GetPlayer() == Players.LocalPlayer
+							then Blend.New("BillboardGui")({
+								Size = UDim2.new(4, 0, 4, 0),
+								StudsOffsetWorldSpace = Vector3.new(-3, 0, 0),
+								ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+								MaxDistance = 128,
+								[Blend.Attached(function(instance: BillboardGui)
+									return RxInstanceUtils.observeProperty(instance, "Parent")
+										:Subscribe(function(parent: Instance)
+											instance.Adornee = parent
+										end)
+								end)] = true,
+								[Blend.Children] = {
+									Blend.New("UIListLayout")({
+										Padding = UDim.new(0, 0),
+										FillDirection = Enum.FillDirection.Vertical,
+										SortOrder = Enum.SortOrder.LayoutOrder,
+										VerticalAlignment = Enum.VerticalAlignment.Bottom,
+										HorizontalAlignment = Enum.HorizontalAlignment.Center,
+									}),
+									-- Price.
+									Blend.New("TextLabel")({
+										BackgroundTransparency = 2,
+										Font = Enum.Font.FredokaOne,
+										LayoutOrder = 2,
+										Size = UDim2.new(1, 0, 0.25, 0),
+										Text = self:PromiseTemplate():Then(function(template: Folder)
+											if not template then
+												return "$???"
+											end
+											local price = TycoonTemplateBuildableUtils.getPrice(template)
+											return "$"
+												.. NumberLocalizationUtils.localize(
+													price,
+													LocalizationService.SystemLocaleId
+												)
+										end),
+										TextScaled = true,
+										TextWrapped = true,
+										TextXAlignment = Enum.TextXAlignment.Center,
+										TextYAlignment = Enum.TextYAlignment.Center,
+										TextColor3 = Color3.fromHex("#41bf6b"),
+										[Blend.Children] = {
+											-- Blend.New("UIStroke")({
+											-- 	Thickness = 2,
+											-- 	Color = Color3.fromRGB(161, 255, 177),
+											-- }),
+										},
+									}),
+									-- Name.
+									Blend.New("TextLabel")({
+										BackgroundTransparency = 1,
+										Font = Enum.Font.FredokaOne,
+										LayoutOrder = 1,
+										Size = UDim2.new(2.5, 0, 0.3, 0),
+										Text = self:PromiseTemplate():Then(function(template: Folder)
+											return if template
+												then TycoonTemplateBuildableUtils.getDisplayName(template)
+												else "???"
+										end),
+										TextScaled = true,
+										TextSize = 28,
+										TextWrapped = true,
+										TextXAlignment = Enum.TextXAlignment.Center,
+										TextYAlignment = Enum.TextYAlignment.Bottom,
+									}),
+								},
+							})
+							else nil,
+					},
 				}),
 				-- Trigger part.
 				Blend.New("Part")({

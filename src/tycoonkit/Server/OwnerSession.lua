@@ -14,7 +14,6 @@ local TycoonTemplateUtils = require("TycoonTemplateUtils")
 local TycoonTemplateBuildableUtils = require("TycoonTemplateBuildableUtils")
 local TycoonBindersServer = require("TycoonBindersServer")
 local OwnerSessionConstants = require("OwnerSessionConstants")
-local LinkUtils = require("LinkUtils")
 local PlayerDataStoreService = require("PlayerDataStoreService")
 local ObservableSet = require("ObservableSet")
 
@@ -105,10 +104,6 @@ function OwnerSession:InsertBuildable(buildableName: string)
 
 		self._buildableSet:Add(buildableName)
 	end)
-end
-
-function OwnerSession:GetPlayer(): Player
-	return LinkUtils.getLinkValue("Player", self._obj)
 end
 
 function OwnerSession:_handleRequest(player: Player, requestType: string, ...)

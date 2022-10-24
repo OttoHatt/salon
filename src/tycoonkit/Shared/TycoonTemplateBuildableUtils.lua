@@ -43,4 +43,12 @@ function TycoonTemplateBuildableUtils.doesStartUnlocked(buildableTemplate: Model
 	return buildableTemplate:GetAttribute("StartUnlocked") == true
 end
 
+function TycoonTemplateBuildableUtils.getPrice(buildableTemplate: Model): number
+	return buildableTemplate:GetAttribute("Price") or 0
+end
+
+function TycoonTemplateBuildableUtils.getDisplayName(buildableTemplate: Model): string
+	return buildableTemplate:GetAttribute("DisplayName") or buildableTemplate.Name
+end
+
 return TycoonTemplateBuildableUtils

@@ -7,6 +7,7 @@
 local require = require(script.Parent.loader).load(script)
 
 local BaseObject = require("BaseObject")
+local LinkUtils = require("LinkUtils")
 
 local OwnerSessionBase = setmetatable({}, BaseObject)
 OwnerSessionBase.ClassName = "OwnerSessionBase"
@@ -18,6 +19,10 @@ function OwnerSessionBase.new(obj, serviceBag)
 	self._serviceBag = assert(serviceBag, "No serviceBag")
 
 	return self
+end
+
+function OwnerSessionBase:GetPlayer(): Player
+	return LinkUtils.getLinkValue("Player", self._obj)
 end
 
 function OwnerSessionBase:IsBuildableBuilt(name: string): boolean
