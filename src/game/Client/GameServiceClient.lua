@@ -19,6 +19,7 @@ function GameServiceClient:Init(serviceBag)
 	self._serviceBag:GetService(SoundscapeServiceClient)
 	self._serviceBag:GetService(TycoonServiceClient)
 	self._serviceBag:GetService(StudioTeleportServiceClient)
+	self._serviceBag:GetService(require("GameUIServiceClient"))
 end
 
 function GameServiceClient:Start()
