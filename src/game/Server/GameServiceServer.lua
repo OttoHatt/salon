@@ -13,6 +13,7 @@ function GameServiceServer:Init(serviceBag)
 
 	-- External.
 	self._serviceBag:GetService(require("HideBindersServer"))
+	self._serviceBag:GetService(require("CurrencyService"))
 	self._serviceBag:GetService(require("TycoonService"))
 end
 

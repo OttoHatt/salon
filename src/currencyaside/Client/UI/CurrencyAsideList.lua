@@ -23,6 +23,10 @@ function CurrencyAsideList.new()
 	self._children = ObservableList.new()
 	self._maid:GiveTask(self._children)
 
+	self._scaleValue = Instance.new("NumberValue")
+	self._scaleValue.Value = 1
+	self._maid:GiveTask(self._scaleValue)
+
 	self._sizeValue = Instance.new("Vector3Value")
 	self._maid:GiveTask(self._sizeValue)
 
@@ -87,6 +91,10 @@ function CurrencyAsideList:GetSizeValue()
 	return self._sizeValue
 end
 
+function CurrencyAsideList:SetScale(scale: number)
+	self._scaleValue.Value = scale
+end
+
 function CurrencyAsideList:_render()
 	return Blend.New("Frame")({
 		AnchorPoint = Vector2.new(1, 0.5),
@@ -96,6 +104,9 @@ function CurrencyAsideList:_render()
 			return UDim2.fromOffset(size.X, size.Y)
 		end),
 		[Blend.Children] = {
+			Blend.New("UIScale")({
+				Scale = self._scaleValue,
+			}),
 			self._children:ObserveItemsBrio():Pipe({
 				RxBrioUtils.map(function(class)
 					return class.Gui

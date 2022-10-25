@@ -9,6 +9,8 @@ local require = require(script.Parent.loader).load(script)
 local SoundscapeServiceClient = require("SoundscapeServiceClient")
 local TycoonServiceClient = require("TycoonServiceClient")
 local StudioTeleportServiceClient = require("StudioTeleportServiceClient")
+local GameUIServiceClient = require("GameUIServiceClient")
+local CurrencyServiceClient = require("CurrencyServiceClient")
 
 local GameServiceClient = {}
 
@@ -19,7 +21,8 @@ function GameServiceClient:Init(serviceBag)
 	self._serviceBag:GetService(SoundscapeServiceClient)
 	self._serviceBag:GetService(TycoonServiceClient)
 	self._serviceBag:GetService(StudioTeleportServiceClient)
-	self._serviceBag:GetService(require("GameUIServiceClient"))
+	self._serviceBag:GetService(CurrencyServiceClient)
+	self._serviceBag:GetService(GameUIServiceClient)
 end
 
 function GameServiceClient:Start()

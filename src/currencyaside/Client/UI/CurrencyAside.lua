@@ -138,6 +138,10 @@ function CurrencyAside:_render()
 						PaddingLeft = UDim.new(0, 8),
 						PaddingRight = UDim.new(0, 8),
 					}),
+					Blend.New("UIGradient")({
+						Rotation = 90 - 15,
+						Color = ColorSequence.new(Color3.fromHex("#f5f7fa"), Color3.fromHex("#c3cfe2")),
+					}),
 					Blend.New("TextLabel")({
 						AnchorPoint = Vector2.new(0, 0),
 						Size = UDim2.new(1, 0, 1, 0),
