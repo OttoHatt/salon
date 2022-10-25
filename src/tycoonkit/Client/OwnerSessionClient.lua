@@ -56,4 +56,11 @@ function OwnerSessionClient:ObserveBuildableExists(name: string)
 	})
 end
 
+function OwnerSessionClient:AskToResetData()
+	-- TODO: MOVE DATA TO A SEPARATE CLASS THIS IS UGLY AND SAD!!!! D:
+	self:PromiseRemoteEvent():Then(function(remote: RemoteEvent)
+		remote:FireServer(OwnerSessionConstants.REQUEST_RESET_DATA)
+	end)
+end
+
 return OwnerSessionClient

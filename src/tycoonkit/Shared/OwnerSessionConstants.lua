@@ -12,4 +12,5 @@ return Table.deepReadonly({
 	REMOTE_EVENT_NAME = "OwnerSessionRemoteEvent",
 
 	REQUEST_BUILD = "RequestBuild",
+	REQUEST_RESET_DATA = "ReqestResetData"
 })

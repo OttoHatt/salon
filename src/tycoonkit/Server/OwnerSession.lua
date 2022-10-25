@@ -48,11 +48,25 @@ function OwnerSession.new(obj, serviceBag)
 	self._maid:GivePromise(self:_promiseDataStore()):Then(function(dataStore)
 		return dataStore
 			:Load(DATASTORE_KEY_BUILT, {})
-			:Then(function(built: { string })
-				-- Get all saved buildables, copy it into the set.
-				for _, uuid in built do
-					self._buildableSet:Add(uuid)
+			:Then(function(initialValue: { string })
+				local function updateFromValue(built: { string })
+					-- TODO: There *must* be a cleaner way of doing this.
+
+					-- Get all saved buildables, copy it into the set.
+					for _, uuid in built do
+						self._buildableSet:Add(uuid)
+					end
+					-- Remove all extra items.
+					-- for _, uuid in self._buildableSet:GetList() do
+					-- 	if not table.find(built, uuid) then
+					-- 		self._buildableSet:Remove(uuid)
+					-- 	end
+					-- end
 				end
+
+				-- First-time update.
+				updateFromValue(initialValue)
+				self:_addDefaultBuildables()
 			end)
 			:Then(function()
 				-- Then, when the set changes, copy back into the key.
@@ -66,14 +80,6 @@ function OwnerSession.new(obj, serviceBag)
 	end)
 
 	self._maid:GivePromise(TycoonTemplateUtils.promiseTemplate():Then(function(tycoonTemplate: Folder)
-		-- Insert all of our default buildables into the set.
-		-- TODO: Make this cleaner. Don't save default buildables?????
-		for _, buildableTemplate in TycoonTemplateUtils.getBuildableTemplates(tycoonTemplate) do
-			if TycoonTemplateBuildableUtils.doesStartUnlocked(buildableTemplate) then
-				self._buildableSet:Add(buildableTemplate.Name)
-			end
-		end
-
 		-- Create all buildables!
 		self._maid:GiveTask(self._buildableSet:ObserveItemsBrio():Subscribe(function(brio)
 			local buildableName: string = brio:GetValue()
@@ -92,6 +98,20 @@ function OwnerSession.new(obj, serviceBag)
 	end))
 
 	return self
+end
+
+function OwnerSession:_addDefaultBuildables()
+	-- TODO: THIS SUCKS AND BREAKS THE ELEGANCE OF THE ORIGINAL CODE!!!!
+
+	-- Insert all of our default buildables into the set.
+	-- TODO: Make this cleaner. Don't save default buildables?????
+	self._maid:GivePromise(TycoonTemplateUtils.promiseTemplate():Then(function(tycoonTemplate: Folder)
+		for _, buildableTemplate in TycoonTemplateUtils.getBuildableTemplates(tycoonTemplate) do
+			if TycoonTemplateBuildableUtils.doesStartUnlocked(buildableTemplate) then
+				self._buildableSet:Add(buildableTemplate.Name)
+			end
+		end
+	end))
 end
 
 function OwnerSession:InsertBuildable(buildableName: string)
@@ -123,6 +143,15 @@ function OwnerSession:_handleRequest(player: Player, requestType: string, ...)
 		end
 
 		self:InsertBuildable(buildableName)
+	elseif requestType == OwnerSessionConstants.REQUEST_RESET_DATA then
+		-- TODO: Should we empty the DataStore, or empty the data structures???
+		for _, item in self._buildableSet:GetList() do
+			self._buildableSet:Remove(item)
+		end
+		self:_addDefaultBuildables()
+		-- self:_promiseDataStore():Then(function(dataStore)
+		-- 	dataStore:Wipe()
+		-- end)
 	end
 end
 

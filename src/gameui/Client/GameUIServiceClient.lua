@@ -11,6 +11,7 @@ local GameScalingUtils = require("GameScalingUtils")
 local SidebarPanel = require("SidebarPanel")
 local SidebarButton = require("SidebarButton")
 local GameScreenProvider = require("GameScreenProvider")
+local SettingsScreen = require("SettingsScreen")
 
 local GameUIServiceClient = {}
 
@@ -58,6 +59,20 @@ function GameUIServiceClient:Start()
 			button:SetIcon("rbxassetid://10256718116")
 			maid:GiveTask(sidebar:AddSidebarButton(button))
 			maid:GiveTask(button)
+
+			-- TODO: Move this!
+			local settingsScreen = SettingsScreen.new()
+			settingsScreen.Gui.Parent = screenGui
+			maid:GiveTask(settingsScreen.PressedResetData:Connect(function()
+				-- TODO: Move this!!!!!!
+				local tycoonServiceClient = self._serviceBag:GetService(require("TycoonServiceClient"))
+				local session = tycoonServiceClient:GetLocallyOwnedSession()
+				session:AskToResetData()
+			end))
+			maid:GiveTask(settingsScreen)
+			maid:GiveTask(button:ObserveIsChosen():Subscribe(function(isChosen)
+				settingsScreen:SetVisible(isChosen)
+			end))
 		end
 	end
 end
