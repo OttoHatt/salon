@@ -50,6 +50,13 @@ function PlayerCurrencyBase:SetValue(currencyName, value)
 	self._obj:SetAttribute(attributeName, value)
 end
 
+function PlayerCurrencyBase:IncrementValue(currencyName, toAdd)
+	assert(type(currencyName) == "string", "Bad currencyName")
+
+	local currentValue = self:GetValue(currencyName)
+	self:SetValue(currencyName, currentValue + toAdd)
+end
+
 function PlayerCurrencyBase:ObserveValue(currencyName)
 	assert(type(currencyName) == "string", "Bad currencyName")
 

@@ -15,6 +15,8 @@ local ConveyorLineUtils = require("ConveyorLineUtils")
 local cancellableDelay = require("cancellableDelay")
 local Maid = require("Maid")
 local PetConveyorConstants = require("PetConveyorConstants")
+local TycoonBindersServer = require("TycoonBindersServer")
+local BinderUtils = require("BinderUtils")
 
 local PetConveyor = setmetatable({}, BehaviorBase)
 PetConveyor.ClassName = "PetConveyor"
@@ -25,6 +27,7 @@ function PetConveyor.new(obj, serviceBag)
 
 	self._serviceBag = assert(serviceBag, "No serviceBag")
 	self._behaviorBinders = self._serviceBag:GetService(BehaviorBindersServer)
+	self._tycoonBinders = self._serviceBag:GetService(TycoonBindersServer)
 
 	-- TODO: Schedule destruction on the server *and* client.
 	-- There will be some latency in when the destroy command is sent and recieved.
@@ -40,22 +43,32 @@ function PetConveyor.new(obj, serviceBag)
 		self._maid:GiveTask(Rx.timer(2, MovingPetConstants.TOTAL_CYCLE_DURATION):Subscribe(function()
 			local maid = Maid.new()
 
+			-- Create pet!
+			local movingPet = MovingPetUtils.instantiateWithModel(
+				self._behaviorBinders.MovingPet,
+				self._obj,
+				game.ReplicatedStorage.Assets.Cat,
+				"Kitty",
+				100
+			)
+			maid:GiveTask(movingPet)
+
 			-- Destroy the pet after a set time.
 			-- Hopefully PETA is ok with this...
 			local cleanupIndex = self._maid:GiveTask(maid)
 			maid:GiveTask(cancellableDelay(petLifetime, function()
-				self._maid[cleanupIndex] = nil
-			end))
+				-- Add value of the pet!
+				-- Note that this looks bad, but it will be modified as the pet travels along the conveyor belt.
+				-- We should find a clearer way of signalling this.
+				-- Maybe some kind of 'mutated' modifier price on top of the template's value?
+				local petValue = MovingPetUtils.getValue(movingPet)
 
-			maid:GiveTask(
-				MovingPetUtils.instantiateWithModel(
-					self._behaviorBinders.MovingPet,
-					self._obj,
-					game.ReplicatedStorage.Assets.Cat,
-					"Kitty",
-					100
-				)
-			)
+				-- Cleanup.
+				self._maid[cleanupIndex] = nil
+
+				-- Do this after cleaning incase it throws.
+				self:GetOwnerSession():GetPlayerCurrency():IncrementValue("Coins", petValue)
+			end))
 		end))
 	end))
 
@@ -69,6 +82,11 @@ function PetConveyor:PromiseConveyorModelLength()
 		)
 		return ConveyorLineUtils.getLengthOfPointArray(pointArray)
 	end)
+end
+
+function PetConveyor:GetOwnerSession()
+	-- TODO: Make this into a generic util! Should go under the base class!
+	return BinderUtils.findFirstAncestor(self._tycoonBinders.OwnerSession, self._obj)
 end
 
 return PetConveyor

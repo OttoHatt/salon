@@ -10,7 +10,7 @@
 	[ ] Stages that add value to pets
 	[ ] Pets are spawned at random intervals (increasing rate with upgrades. player advertisements?)
 	[ ] Animated conveyor belt
-	[ ] Earn money when pets complete conveyor (just wait, then add their value)
+	[x] Earn money when pets complete the conveyor (just wait, then add their value)
 [ ] Pet models
 	[ ] Pet models randomly chosen
 	[ ] Animations play randomly (i.e. sitting idly, looking around)
@@ -22,3 +22,5 @@
 [ ] Tycoon features
 	[ ] Spawn outside tycoon (maybe switch to picking tycoons?)
 	[ ] Player name signs
+[ ] Soundscapes
+	[ ] Investgiate bug with moved soundscapes not respecting their new transforms
