@@ -56,12 +56,6 @@ function OwnerSession.new(obj, serviceBag)
 					for _, uuid in built do
 						self._buildableSet:Add(uuid)
 					end
-					-- Remove all extra items.
-					-- for _, uuid in self._buildableSet:GetList() do
-					-- 	if not table.find(built, uuid) then
-					-- 		self._buildableSet:Remove(uuid)
-					-- 	end
-					-- end
 				end
 
 				-- First-time update.
@@ -149,9 +143,6 @@ function OwnerSession:_handleRequest(player: Player, requestType: string, ...)
 			self._buildableSet:Remove(item)
 		end
 		self:_addDefaultBuildables()
-		-- self:_promiseDataStore():Then(function(dataStore)
-		-- 	dataStore:Wipe()
-		-- end)
 	end
 end
 
