@@ -15,6 +15,7 @@ function GameServiceServer:Init(serviceBag)
 	self._serviceBag:GetService(require("HideBindersServer"))
 	self._serviceBag:GetService(require("CurrencyService"))
 	self._serviceBag:GetService(require("TycoonService"))
+	self._serviceBag:GetService(require("BehaviorBindersServer"))
 end
 
 function GameServiceServer:Start() end

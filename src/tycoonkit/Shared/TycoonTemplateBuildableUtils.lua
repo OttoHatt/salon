@@ -6,6 +6,10 @@
 
 local require = require(script.Parent.loader).load(script)
 
+local TEMPLATE_BEHAVIOR_NAME = "Behavior"
+
+local CollectionService = game:GetService("CollectionService")
+
 local LinkUtils = require("LinkUtils")
 local TycoonTemplateUtils = require("TycoonTemplateUtils")
 
@@ -25,12 +29,30 @@ function TycoonTemplateBuildableUtils.instantiateFromTemplate(
 	buildable.Name = buildableTemplate.Name
 	buildable.Archivable = false
 
+	-- Link back to our template.
 	LinkUtils.createLink("Source", buildable, buildableTemplate)
 
 	buildable.Parent = session
 	buildableBinder:Bind(buildable)
 
+	-- Bind all assigned behaviors to this buildable.
+	for _, behavior: string in TycoonTemplateBuildableUtils.getBehaviors(buildableTemplate) do
+		CollectionService:AddTag(buildable, behavior)
+	end
+
 	return buildable
+end
+
+function TycoonTemplateBuildableUtils.getBehaviors(buildableTemplate: Model): { string }
+	local behaviors = {}
+
+	for _, child: Instance in buildableTemplate:GetChildren() do
+		if child:IsA("StringValue") and child.Name == TEMPLATE_BEHAVIOR_NAME then
+			table.insert(behaviors, child.Value)
+		end
+	end
+
+	return behaviors
 end
 
 function TycoonTemplateBuildableUtils.getTemplateOffset(buildableTemplate: Model): CFrame

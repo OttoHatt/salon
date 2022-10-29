@@ -1,8 +1,8 @@
 [x] Buildables cost & check money
 [ ] Debounce with buttons spamming server events
 [ ] Pet spawners
-	[ ] Conveyor belt path
-	[ ] Debug draw
+	[x] Conveyor belt path
+	[x] Debug draw
 	[ ] Move incrementally with ease function
 	[ ] Termination point
 	[ ] Caching to cheaply allow large numbers of pets
