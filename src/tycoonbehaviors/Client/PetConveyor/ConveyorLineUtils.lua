@@ -94,6 +94,15 @@ function ConveyorLineUtils.getPositionByDistanceIntoPointArray(pointList: { tabl
 		local facFromPrevToCurrent = Math.map(distance, prevPoint.Distance, point.Distance, 0, 1)
 		return prevPoint.Position:Lerp(point.Position, facFromPrevToCurrent)
 	end
+
+	-- If we got this far, then we must be at the end of the array.
+	-- Extrapolate the points outward.
+	if #pointList >= 2 then
+		local p0 = pointList[#pointList-1].Position
+		local p1 = pointList[#pointList].Position
+
+		return p0 + (p1-p0) * ((distance - pointList[#pointList-1].Distance) / (p1-p0).Magnitude)
+	end
 end
 
 return ConveyorLineUtils
