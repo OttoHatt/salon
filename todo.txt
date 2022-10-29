@@ -1,10 +1,24 @@
 [x] Buildables cost & check money
 [ ] Debounce with buttons spamming server events
-[ ] Pet spawners
+[ ] Pet conveyor
 	[x] Conveyor belt path
 	[x] Debug draw
 	[x] Move incrementally with ease function
-	[ ] Termination point
+	[x] Termination point
 	[ ] Caching to cheaply allow large numbers of pets
-	[ ] Choosing 1 conveyor at a time to render
+	[ ] Choosing 1 conveyor at a time to render as an optimisation
 	[ ] Stages that add value to pets
+	[ ] Pets are spawned at random intervals (increasing rate with upgrades. player advertisements?)
+	[ ] Animated conveyor belt
+	[ ] Earn money when pets complete conveyor (just wait, then add their value)
+[ ] Pet models
+	[ ] Pet models randomly chosen
+	[ ] Animations play randomly (i.e. sitting idly, looking around)
+	[ ] Pets react when the player gets close (i.e. barking, meowing)
+[ ] Pet shinies (like Pokémon)
+	[ ] Regular
+	[ ] Golden (much higher value)
+	[ ] Celebrity
+[ ] Tycoon features
+	[ ] Spawn outside tycoon (maybe switch to picking tycoons?)
+	[ ] Player name signs

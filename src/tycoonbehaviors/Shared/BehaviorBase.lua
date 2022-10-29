@@ -9,6 +9,7 @@ local require = require(script.Parent.loader).load(script)
 local BaseObject = require("BaseObject")
 local RxInstanceUtils = require("RxInstanceUtils")
 local RxBrioUtils = require("RxBrioUtils")
+local LinkUtils = require("LinkUtils")
 
 local BehaviorBase = setmetatable({}, BaseObject)
 BehaviorBase.ClassName = "BehaviorBase"
@@ -26,6 +27,10 @@ function BehaviorBase:ObserveModelBrio()
 	return RxInstanceUtils.observeChildrenOfClassBrio(self._obj, "Model"):Pipe({
 		RxBrioUtils.onlyLastBrioSurvives(),
 	})
+end
+
+function BehaviorBase:PromiseBuildableTemplate(maid)
+	return LinkUtils.promiseLinkValue(maid, "Source", self._obj)
 end
 
 return BehaviorBase
