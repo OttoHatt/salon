@@ -6,9 +6,6 @@
 
 local require = require(script.Parent.loader).load(script)
 
--- TODO: Redefining a constant. Not good!
-local PATH_POINTS_FOLDER_NAME = "PathPoints"
-
 local BehaviorBase = require("BehaviorBase")
 local Rx = require("Rx")
 local MovingPetUtils = require("MovingPetUtils")
@@ -17,6 +14,7 @@ local MovingPetConstants = require("MovingPetConstants")
 local ConveyorLineUtils = require("ConveyorLineUtils")
 local cancellableDelay = require("cancellableDelay")
 local Maid = require("Maid")
+local PetConveyorConstants = require("PetConveyorConstants")
 
 local PetConveyor = setmetatable({}, BehaviorBase)
 PetConveyor.ClassName = "PetConveyor"
@@ -67,7 +65,7 @@ end
 function PetConveyor:PromiseConveyorModelLength()
 	return self:PromiseBuildableTemplate(self._maid):Then(function(buildableTemplate: Model)
 		local pointArray = ConveyorLineUtils.adorneesToPointArray(
-			buildableTemplate:FindFirstChild(PATH_POINTS_FOLDER_NAME):GetChildren()
+			buildableTemplate:FindFirstChild(PetConveyorConstants.PATH_POINTS_FOLDER_NAME):GetChildren()
 		)
 		return ConveyorLineUtils.getLengthOfPointArray(pointArray)
 	end)

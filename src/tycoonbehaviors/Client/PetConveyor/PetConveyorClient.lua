@@ -7,7 +7,6 @@
 local require = require(script.Parent.loader).load(script)
 
 local DEBUG_DRAW = true
-local PATH_POINTS_FOLDER_NAME = "PathPoints"
 
 local BehaviorBase = require("BehaviorBase")
 local RxBrioUtils = require("RxBrioUtils")
@@ -15,6 +14,7 @@ local RxInstanceUtils = require("RxInstanceUtils")
 local Draw = require("Draw")
 local ConveyorLineUtils = require("ConveyorLineUtils")
 local Rx = require("Rx")
+local PetConveyorConstants = require("PetConveyorConstants")
 
 local PetConveyorClient = setmetatable({}, BehaviorBase)
 PetConveyorClient.ClassName = "PetConveyorClient"
@@ -35,14 +35,18 @@ end
 function PetConveyorClient:ObserveOrderedPathPointsBrio()
 	return self:ObserveModelBrio():Pipe({
 		RxBrioUtils.switchMapBrio(function(model: Model)
-			return RxInstanceUtils.observeLastNamedChildBrio(model, "Folder", PATH_POINTS_FOLDER_NAME)
+			return RxInstanceUtils.observeLastNamedChildBrio(
+				model,
+				"Folder",
+				PetConveyorConstants.PATH_POINTS_FOLDER_NAME
+			)
 		end),
 		RxBrioUtils.switchMapBrio(function(pathPoints: Folder)
 			return RxInstanceUtils.observeChildrenBrio(pathPoints)
 		end),
 		RxBrioUtils.reduceToAliveList(),
 		RxBrioUtils.map(ConveyorLineUtils.adorneesToPointArray),
-		Rx.cache()
+		Rx.cache(),
 	})
 end
 
