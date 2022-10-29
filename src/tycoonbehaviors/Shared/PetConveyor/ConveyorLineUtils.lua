@@ -17,19 +17,6 @@ local Math = require("Math")
 local ConveyorLineUtils = {}
 
 --[=[
-	Sort points on the line by ascending index.
-
-	@param pointList {ConveyorPoint}
-	@return {ConveyorPoint}
-]=]
-function ConveyorLineUtils.sortPointArray(pointList: { table })
-	table.sort(pointList, function(a, b)
-		return a.Index < b.Index
-	end)
-	return pointList
-end
-
---[=[
 	Given a list of adorness, turn them into an array of struct-likes holding info about each point.
 
 	@param adorneeList {Instance}
@@ -70,6 +57,19 @@ function ConveyorLineUtils.adorneesToPointArray(adorneeList: { Instance }): { ta
 end
 
 --[=[
+	Sort points on the line by ascending index.
+
+	@param pointList {ConveyorPoint}
+	@return {ConveyorPoint}
+]=]
+function ConveyorLineUtils.sortPointArray(pointList: { table })
+	table.sort(pointList, function(a, b)
+		return a.Index < b.Index
+	end)
+	return pointList
+end
+
+--[=[
 	Find a position along the point array path at the specified distance from the start.
 	This is very useful for animations!
 
@@ -102,6 +102,18 @@ function ConveyorLineUtils.getPositionByDistanceIntoPointArray(pointList: { tabl
 		local p1 = pointList[#pointList].Position
 
 		return p0 + (p1-p0) * ((distance - pointList[#pointList-1].Distance) / (p1-p0).Magnitude)
+	end
+end
+
+--[=[
+	Get the length of a point array by checking the last element.
+
+	@param pointList {ConveyorPoint}
+	@return {ConveyorPoint}
+]=]
+function ConveyorLineUtils.getLengthOfPointArray(pointList: { table }): number?
+	if #pointList > 1 then
+		return pointList[#pointList].Distance
 	end
 end
 
