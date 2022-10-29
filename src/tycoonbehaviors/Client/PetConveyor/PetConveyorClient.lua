@@ -6,9 +6,6 @@
 
 local require = require(script.Parent.loader).load(script)
 
-local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
 local DEBUG_DRAW = true
 local PATH_POINTS_FOLDER_NAME = "PathPoints"
 
@@ -17,7 +14,7 @@ local RxBrioUtils = require("RxBrioUtils")
 local RxInstanceUtils = require("RxInstanceUtils")
 local Draw = require("Draw")
 local ConveyorLineUtils = require("ConveyorLineUtils")
-local Spring = require("Spring")
+local Rx = require("Rx")
 
 local PetConveyorClient = setmetatable({}, BehaviorBase)
 PetConveyorClient.ClassName = "PetConveyorClient"
@@ -45,12 +42,8 @@ function PetConveyorClient:ObserveOrderedPathPointsBrio()
 		end),
 		RxBrioUtils.reduceToAliveList(),
 		RxBrioUtils.map(ConveyorLineUtils.adorneesToPointArray),
+		Rx.cache()
 	})
-end
-
-local function getCatModel(): Model
-	-- TODO: TEMPORARY!!!!!!!!!!!!!!!!!!!
-	return ReplicatedStorage.Assets.Cat
 end
 
 function PetConveyorClient:_handlePathBrio(brio)
@@ -69,29 +62,6 @@ function PetConveyorClient:_handlePathBrio(brio)
 			maid:GiveTask(Draw.labelledPoint(point.Position, i))
 		end
 	end
-
-	-- Draw pets moving across the path.
-	-- Temporary!
-	local spring
-	local totalTime = 0
-
-	local catModel = getCatModel():Clone()
-	catModel.Parent = workspace.CurrentCamera
-
-	maid:GiveTask(RunService.RenderStepped:Connect(function(dt)
-		totalTime += dt
-
-		local targetPos = ConveyorLineUtils.getPositionByDistanceIntoPointArray(list, totalTime * 16)
-		if not spring then
-			spring = Spring.new(targetPos)
-			spring.Speed = 16
-		end
-
-		if targetPos then
-			spring.Target = targetPos
-		end
-		catModel:PivotTo(CFrame.new(spring.Position) * CFrame.fromAxisAngle(Vector3.yAxis, totalTime))
-	end))
 end
 
 return PetConveyorClient

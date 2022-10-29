@@ -15,4 +15,9 @@ return BinderProvider.new(function(self, serviceBag)
 	@within BehaviorBindersClient
 ]=]
 	self:Add(Binder.new("PetConveyor", require("PetConveyorClient"), serviceBag))
+--[=[
+	@prop MovingPet Binder<MovingPetClient>
+	@within BehaviorBindersClient
+]=]
+	self:Add(Binder.new("MovingPet", require("MovingPetClient"), serviceBag))
 end)
