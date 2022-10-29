@@ -24,9 +24,11 @@ function PlayerCurrencyBase.new(obj, serviceBag)
 	return self
 end
 
-function PlayerCurrencyBase:GetValue(currencyName, defaultValue)
+function PlayerCurrencyBase:GetValue(currencyName)
 	assert(type(currencyName) == "string", "Bad currencyName")
-	assert(defaultValue ~= nil, "defaultValue cannot be nil")
+
+	local config = self._currencyDiscoveryService:GetConfig(currencyName)
+	assert(config, ("Bad currencyName %s!"):format(tostring(currencyName)))
 
 	local attributeName = PlayerCurrencyUtils.getAttributeName(currencyName)
 
@@ -34,7 +36,7 @@ function PlayerCurrencyBase:GetValue(currencyName, defaultValue)
 
 	local value = self._obj:GetAttribute(attributeName)
 	if value == nil then
-		return defaultValue
+		return config:GetDefaultValue()
 	end
 
 	return value
@@ -48,15 +50,17 @@ function PlayerCurrencyBase:SetValue(currencyName, value)
 	self._obj:SetAttribute(attributeName, value)
 end
 
-function PlayerCurrencyBase:ObserveValue(currencyName, defaultValue)
+function PlayerCurrencyBase:ObserveValue(currencyName)
 	assert(type(currencyName) == "string", "Bad currencyName")
-	assert(defaultValue ~= nil, "defaultValue cannot be nil")
+
+	local config = self._currencyDiscoveryService:GetConfig(currencyName)
+	assert(config, ("Bad currencyName %s!"):format(tostring(currencyName)))
 
 	local attributeName = PlayerCurrencyUtils.getAttributeName(currencyName)
 
 	-- self:EnsureInitialized(currencyName, defaultValue)
 
-	return RxAttributeUtils.observeAttribute(self._obj, attributeName, defaultValue)
+	return RxAttributeUtils.observeAttribute(self._obj, attributeName, config:GetDefaultValue())
 end
 
 return PlayerCurrencyBase

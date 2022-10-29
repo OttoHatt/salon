@@ -24,10 +24,16 @@ function CurrencyServiceClient:ObserveLocalPlayerCurrencyBrio()
 	return self:ObservePlayerCurrencyBrio(Players.LocalPlayer)
 end
 
-function CurrencyServiceClient:ObservePlayerCurrencyBrio(player)
+function CurrencyServiceClient:ObservePlayerCurrencyBrio(player: Player)
 	assert(typeof(player) == "Instance" and player:IsA("Player"), "Bad player")
 
 	return PlayerCurrencyUtils.observePlayerCurrencyBrio(self._binders.PlayerCurrency, player)
+end
+
+function CurrencyServiceClient:GetPlayerCurrency(player: Player)
+	assert(typeof(player) == "Instance" and player:IsA("Player"), "Bad player")
+
+	return PlayerCurrencyUtils.getPlayerCurrency(self._binders.PlayerCurrency, player)
 end
 
 return CurrencyServiceClient

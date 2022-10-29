@@ -14,6 +14,9 @@ local RxBinderUtils = require("RxBinderUtils")
 local RxBrioUtils = require("RxBrioUtils")
 local TycoonBindersClient = require("TycoonBindersClient")
 local Rx = require("Rx")
+local CurrencyServiceClient = require("CurrencyServiceClient")
+local TycoonTemplateUtils = require("TycoonTemplateUtils")
+local TycoonTemplateBuildableUtils = require("TycoonTemplateBuildableUtils")
 
 local OwnerSessionClient = setmetatable({}, OwnerSessionBase)
 OwnerSessionClient.ClassName = "OwnerSessionClient"
@@ -26,13 +29,34 @@ function OwnerSessionClient.new(obj, serviceBag)
 
 	self._serviceBag = assert(serviceBag, "No serviceBag")
 	self._tycoonBinders = self._serviceBag:GetService(TycoonBindersClient)
+	self._currencyService = self._serviceBag:GetService(CurrencyServiceClient)
 
 	return self
 end
 
+function OwnerSessionClient:PromiseCanBuyBuildable(name: string)
+	return TycoonTemplateUtils.promiseTemplate():Then(function(tycoonTemplate: Folder)
+		-- TODO: Unify this logic between server/client.
+		-- Currently some weirdness due to with CurrencyService needing a server/client implementation.
+		local template = TycoonTemplateUtils.getBuildableTemplateByName(tycoonTemplate, name)
+		if not template then
+			return
+		end
+
+		local price = TycoonTemplateBuildableUtils.getPrice(template)
+		local currency = self:GetPlayerCurrency():GetValue("Coins")
+
+		return currency >= price
+	end)
+end
+
 function OwnerSessionClient:AttemptBuyBuildable(name: string)
-	self:PromiseRemoteEvent():Then(function(remote: RemoteEvent)
-		remote:FireServer(OwnerSessionConstants.REQUEST_BUILD, name)
+	self:PromiseCanBuyBuildable(name):Then(function(canBuy)
+		if canBuy then
+			return self:PromiseRemoteEvent():Then(function(remote: RemoteEvent)
+				remote:FireServer(OwnerSessionConstants.REQUEST_BUILD, name)
+			end)
+		end
 	end)
 end
 
@@ -42,7 +66,7 @@ function OwnerSessionClient:ObserveBuildableClassBrio(name: string)
 	return RxInstanceUtils.observeLastNamedChildBrio(self._obj, "Folder", name):Pipe({
 		RxBrioUtils.switchMapBrio(function(model: Model)
 			return RxBinderUtils.observeBoundClassBrio(self._tycoonBinders.Buildable, model)
-		end)
+		end),
 	})
 end
 
@@ -61,6 +85,10 @@ function OwnerSessionClient:AskToResetData()
 	self:PromiseRemoteEvent():Then(function(remote: RemoteEvent)
 		remote:FireServer(OwnerSessionConstants.REQUEST_RESET_DATA)
 	end)
+end
+
+function OwnerSessionClient:GetPlayerCurrency()
+	return self._currencyService:GetPlayerCurrency(self:GetPlayer())
 end
 
 return OwnerSessionClient

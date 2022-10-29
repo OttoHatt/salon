@@ -16,6 +16,7 @@ local TycoonBindersServer = require("TycoonBindersServer")
 local OwnerSessionConstants = require("OwnerSessionConstants")
 local PlayerDataStoreService = require("PlayerDataStoreService")
 local ObservableSet = require("ObservableSet")
+local CurrencyService = require("CurrencyService")
 
 local OwnerSession = setmetatable({}, OwnerSessionBase)
 OwnerSession.ClassName = "OwnerSession"
@@ -27,6 +28,7 @@ function OwnerSession.new(obj, serviceBag)
 	self._serviceBag = assert(serviceBag, "No serviceBag")
 	self._tycoonBinders = self._serviceBag:GetService(TycoonBindersServer)
 	self._playerDataStoreService = self._serviceBag:GetService(PlayerDataStoreService)
+	self._currencyService = self._serviceBag:GetService(CurrencyService)
 
 	self._cframe = self._obj.Parent.CFrame
 
@@ -94,6 +96,10 @@ function OwnerSession.new(obj, serviceBag)
 	return self
 end
 
+function OwnerSession:GetPlayerCurrency()
+	return self._currencyService:GetPlayerCurrency(self:GetPlayer())
+end
+
 function OwnerSession:_addDefaultBuildables()
 	-- TODO: THIS SUCKS AND BREAKS THE ELEGANCE OF THE ORIGINAL CODE!!!!
 
@@ -131,12 +137,7 @@ function OwnerSession:_handleRequest(player: Player, requestType: string, ...)
 	end
 
 	if requestType == OwnerSessionConstants.REQUEST_BUILD then
-		local buildableName: string = ...
-		if typeof(buildableName) ~= "string" then
-			return
-		end
-
-		self:InsertBuildable(buildableName)
+		self:_handleBuildRequest(...)
 	elseif requestType == OwnerSessionConstants.REQUEST_RESET_DATA then
 		-- TODO: Should we empty the DataStore, or empty the data structures???
 		for _, item in self._buildableSet:GetList() do
@@ -144,6 +145,44 @@ function OwnerSession:_handleRequest(player: Player, requestType: string, ...)
 		end
 		self:_addDefaultBuildables()
 	end
+end
+
+function OwnerSession:_handleBuildRequest(buildableName: string)
+	if typeof(buildableName) ~= "string" then
+		return
+	end
+
+	if self:IsBuildableBuilt(buildableName) then
+		return
+	end
+
+	TycoonTemplateUtils.promiseTemplate():Then(function(tycoonTemplate: Folder)
+		-- Check that the template is valid *before* we add it!
+		local template = TycoonTemplateUtils.getBuildableTemplateByName(tycoonTemplate, buildableName)
+		if not template then
+			return
+		end
+
+		-- Check the player has a currency.
+		-- This should never be missing.
+		local playerCurrency = self:GetPlayerCurrency()
+		if not playerCurrency then
+			return
+		end
+
+		-- Check that we can afford it...
+		local price = TycoonTemplateBuildableUtils.getPrice(template)
+		local currencyCount = playerCurrency:GetValue("Coins")
+		if currencyCount < price then
+			return
+		end
+
+		-- Subtract coins first...
+		playerCurrency:SetValue("Coins", currencyCount - price)
+
+		-- All good!
+		self:InsertBuildable(buildableName)
+	end)
 end
 
 function OwnerSession:_promiseDataStore()

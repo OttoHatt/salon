@@ -1,0 +1,10 @@
+[x] Buildables cost & check money
+[ ] Debounce with buttons spamming server events
+[ ] Pet spawners
+	[ ] Conveyor belt path
+	[ ] Debug draw
+	[ ] Move incrementally with ease function
+	[ ] Termination point
+	[ ] Caching to cheaply allow large numbers of pets
+	[ ] Choosing 1 conveyor at a time to render
+	[ ] Stages that add value to pets
