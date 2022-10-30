@@ -32,10 +32,11 @@ function PlayerWallSignClient.new(obj, serviceBag)
 		maid:GiveTask(Blend.mount(textLabel, {
 			Text = Blend.Computed(RxInstanceUtils.observeProperty(player, "DisplayName"), function(name: string)
 				-- TODO: LocalizedPluralUtils? :P
-				if name:sub(-1):upper() == "S" then
+				name = name:upper()
+				if name:sub(-1) == "S" then
 					return name .. "'"
 				else
-					return name .. "'s"
+					return name .. "'S"
 				end
 			end),
 		}))
