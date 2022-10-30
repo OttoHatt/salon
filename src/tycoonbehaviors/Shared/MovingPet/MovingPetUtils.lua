@@ -10,11 +10,11 @@ local LinkUtils = require("LinkUtils")
 
 local MovingPetUtils = {}
 
-function MovingPetUtils.instantiateWithModel(binder, conveyor: Folder, visualModel: Model, cuteName: string, value: number)
+function MovingPetUtils.instantiateWithModel(binder, conveyor: Folder, visualModel: Model, cuteName: string, initialValue: number)
 	assert(typeof(conveyor) == "Instance", "Bad conveyor")
 	assert(typeof(visualModel) == "Instance" and visualModel:IsA("Model"), "Bad visual model")
 	assert(typeof(cuteName) == "string", "Bad cuteName")
-	assert(typeof(value) == "number", "Bad value")
+	assert(typeof(initialValue) == "number", "Bad initialValue")
 
 	local movingPet = Instance.new("Folder")
 
@@ -22,7 +22,7 @@ function MovingPetUtils.instantiateWithModel(binder, conveyor: Folder, visualMod
 	movingPet.Archivable = false
 
 	movingPet:SetAttribute("CuteName", cuteName)
-	movingPet:SetAttribute("Value", value)
+	movingPet:SetAttribute("Value", initialValue)
 	movingPet:SetAttribute("SpawnTime", workspace:GetServerTimeNow())
 	LinkUtils.createLink("Model", movingPet, visualModel)
 
