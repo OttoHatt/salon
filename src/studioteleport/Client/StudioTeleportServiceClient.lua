@@ -27,6 +27,10 @@ function StudioTeleportServiceClient:Start()
 		return
 	end
 
+	local raycastParams = RaycastParams.new()
+	raycastParams.IgnoreWater = true
+	raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+
 	self._maid:GiveTask(UserInputService.InputBegan:Connect(function(input: InputObject, gameProcessed: boolean)
 		if gameProcessed then
 			return
@@ -41,10 +45,12 @@ function StudioTeleportServiceClient:Start()
 
 			local camera = workspace.CurrentCamera
 			local mouseLocation = UserInputService:GetMouseLocation()
-
 			local ray = camera:ViewportPointToRay(mouseLocation.X, mouseLocation.Y)
 
-			local result = workspace:Raycast(ray.Origin, ray.Direction.Unit * 1024, nil)
+			-- Filter out the local character.
+			raycastParams.FilterDescendantsInstances = { humanoid.Parent }
+
+			local result = workspace:Raycast(ray.Origin, ray.Direction.Unit * 1024, raycastParams)
 			if result then
 				HumanoidTeleportUtils.teleportRootPart(humanoid, rootPart, result.Position)
 			end
