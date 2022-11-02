@@ -7,6 +7,7 @@
 local require = require(script.Parent.loader).load(script)
 
 local LinkUtils = require("LinkUtils")
+local RxAttributeUtils = require("RxAttributeUtils")
 
 local MovingPetUtils = {}
 
@@ -46,6 +47,11 @@ end
 
 function MovingPetUtils.getSpawnTime(movingPet: Folder): number
 	return movingPet:GetAttribute("SpawnTime")
+end
+
+function MovingPetUtils.observeValueBrio(movingPet: Folder)
+	-- TODO: Rename this!!! :P
+	return RxAttributeUtils.observeAttributeBrio(movingPet, "Value")
 end
 
 return MovingPetUtils

@@ -25,4 +25,14 @@ return BinderProvider.new(function(self, serviceBag)
 	@within BehaviorBindersClient
 ]=]
 	self:Add(Binder.new("PlayerWallSign", require("PlayerWallSignClient"), serviceBag))
+--[=[
+	@prop PetUpgrader Binder<PetUpgraderClient>
+	@within BehaviorBindersClient
+]=]
+	self:Add(Binder.new("PetUpgrader", require("PetUpgraderClient"), serviceBag))
+--[=[
+	@prop ArchSprayer Binder<ArchSprayerClient>
+	@within BehaviorBindersClient
+]=]
+	self:Add(Binder.new("ArchSprayer", require("ArchSprayerClient"), serviceBag))
 end)

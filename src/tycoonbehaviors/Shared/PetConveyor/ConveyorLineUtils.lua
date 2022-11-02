@@ -10,6 +10,7 @@
 local require = require(script.Parent.loader).load(script)
 
 local ATTRIBUTE_ADORNEE_INDEX = "Index"
+local ATTRIBUTE_ADORNEE_LINKED_UPGRADER = "LinkedUpgrader"
 
 local AdorneeUtils = require("AdorneeUtils")
 local Math = require("Math")
@@ -30,6 +31,7 @@ function ConveyorLineUtils.adorneesToPointArray(adorneeList: { Instance }): { ta
 		table.insert(out, {
 			Index = adornee:GetAttribute(ATTRIBUTE_ADORNEE_INDEX),
 			Position = AdorneeUtils.getCenter(adornee),
+			LinkedUpgrader = adornee:GetAttribute(ATTRIBUTE_ADORNEE_LINKED_UPGRADER)
 		})
 	end
 

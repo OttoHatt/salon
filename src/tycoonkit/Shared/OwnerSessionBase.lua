@@ -25,8 +25,12 @@ function OwnerSessionBase:GetPlayer(): Player
 	return LinkUtils.getLinkValue("Player", self._obj)
 end
 
+function OwnerSessionBase:GetBuildableByName(name: string)
+	return self._obj:FindFirstChild(name)
+end
+
 function OwnerSessionBase:IsBuildableBuilt(name: string): boolean
-	return self._obj:FindFirstChild(name) ~= nil
+	return self:GetBuildableByName(name) ~= nil
 end
 
 return OwnerSessionBase

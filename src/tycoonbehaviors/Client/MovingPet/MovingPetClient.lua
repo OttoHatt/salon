@@ -17,6 +17,7 @@ local MovingPetUtils = require("MovingPetUtils")
 local ConveyorLineUtils = require("ConveyorLineUtils")
 local Math = require("Math")
 local MovingPetConstants = require("MovingPetConstants")
+local Draw = require("Draw")
 
 local MovingPet = setmetatable({}, BaseObject)
 MovingPet.ClassName = "MovingPet"
@@ -71,9 +72,9 @@ function MovingPet:_handlePathPointsBrio(brio)
 	local clockOffset = workspace:GetServerTimeNow() - MovingPetUtils.getSpawnTime(self._obj)
 
 	local orderedPathPoints = brio:GetValue()
-	local maid = brio:ToMaid()
+	local topMaid = brio:ToMaid()
 
-	maid:GivePromise(MovingPetUtils.promiseModel(maid, self._obj)):Then(function(template: Model)
+	topMaid:GivePromise(MovingPetUtils.promiseModel(topMaid, self._obj)):Then(function(template: Model)
 		local petModel = template:Clone()
 		petModel.Parent = self._obj
 
@@ -81,7 +82,7 @@ function MovingPet:_handlePathPointsBrio(brio)
 		-- Temporary!
 		local totalTime = clockOffset
 
-		maid:GiveTask(RunService.RenderStepped:Connect(function(dt)
+		topMaid:GiveTask(RunService.RenderStepped:Connect(function(dt)
 			totalTime += dt
 
 			-- Calculate our cycle.
@@ -105,6 +106,13 @@ function MovingPet:_handlePathPointsBrio(brio)
 				-- Do nothing! :P
 				return
 			end
+		end))
+
+		topMaid:GiveTask(MovingPetUtils.observeValueBrio(self._obj):Subscribe(function(valueBrio)
+			local value = valueBrio:GetValue()
+			local maid = valueBrio:ToMaid()
+
+			maid:GiveTask(Draw.text(petModel, "$" .. value, Color3.fromRGB(36, 94, 181)))
 		end))
 	end)
 end
