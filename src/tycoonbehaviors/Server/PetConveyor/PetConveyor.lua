@@ -93,14 +93,13 @@ function PetConveyor.new(obj, serviceBag)
 
 	self._maid:GiveTask(self:PromiseConveyorPointArray():Then(function(pointArray)
 		self._maid:GiveTask(self.CycleResting:Connect(function()
-			-- Hmmm...
 			local allPets = self._movingPetsList:GetList()
 
 			-- Add slight offset over totalTime to account for clock drift on the client.
 			local serverTimeNow = workspace:GetServerTimeNow() + 0.03
 
-			-- Find pet closest to each node.
 			for _, movingPetInstance in allPets do
+				-- Find the closest node for each pet.
 				local clockOffset = serverTimeNow - MovingPetUtils.getSpawnTime(movingPetInstance)
 				local cycleCount = math.ceil(clockOffset / MovingPetConstants.TOTAL_CYCLE_DURATION)
 
@@ -118,13 +117,21 @@ function PetConveyor.new(obj, serviceBag)
 					end
 				end
 
-				if targetNode and targetNode.LinkedUpgrader then
-					local targetBuildable = self:GetOwnerSession():GetBuildableByName(targetNode.LinkedUpgrader)
-					local upgraderClass = self._behaviorBinders.PetUpgrader:Get(targetBuildable)
-					if upgraderClass then
-						upgraderClass:Upgrade(movingPetInstance)
-					end
+				if not (targetNode and targetNode.LinkedUpgrader) then
+					continue
 				end
+
+				local targetBuildable = self:GetOwnerSession():GetBuildableByName(targetNode.LinkedUpgrader)
+				if not targetBuildable then
+					continue
+				end
+
+				local upgraderClass = self._behaviorBinders.PetUpgrader:Get(targetBuildable)
+				if not upgraderClass then
+					continue
+				end
+
+				upgraderClass:Upgrade(movingPetInstance)
 			end
 		end))
 	end))
