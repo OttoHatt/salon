@@ -45,6 +45,7 @@ function PetConveyorClient:ObserveOrderedPathPointsBrio()
 			return RxInstanceUtils.observeChildrenBrio(pathPoints)
 		end),
 		RxBrioUtils.reduceToAliveList(),
+		Rx.throttleDefer(),
 		RxBrioUtils.map(ConveyorLineUtils.adorneesToPointArray),
 		Rx.cache(),
 	})

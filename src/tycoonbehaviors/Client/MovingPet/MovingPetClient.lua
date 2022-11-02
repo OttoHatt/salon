@@ -59,13 +59,6 @@ function MovingPet.new(obj, serviceBag)
 end
 
 function MovingPet:_handlePathPointsBrio(brio)
-	-- TODO: This gets re-invoked for 'n' points on the path. Really bad!!!!!
-	-- This is because as RxInstanceUtils collects all of the children into one, it dispatches a new table for each.
-	-- This means that on initial subscription we're going to fire 'n' times, and for 'n' new points added.
-	-- We need to set a limit of one update per frame, as per some kind of defer.
-	-- Like a rate limit per frame.
-	-- There's likely already an Rx method that does this, but I don't know what it's called.
-
 	-- Calculate time offset for our animation.
 	-- We cache this once at the start, as the server clock is prone to drift.
 	-- This will result in cleaner-looking animations.
