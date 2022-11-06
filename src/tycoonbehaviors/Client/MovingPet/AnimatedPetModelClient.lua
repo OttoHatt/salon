@@ -1,15 +1,19 @@
 --[=[
 	@class AnimatedPetModelClient
 
-	Hmmmm.
+	Animated pet models on the client! Cute stuff.
 ]=]
 
 local require = require(script.Parent.loader).load(script)
 
 local DEBUG_DRAW = false
+
 local MAX_LOOK_ANGLE = math.rad(100)
 local IGNORE_LOOK_ANGLE = math.rad(140)
 local IGNORE_DISTANCE = 25
+
+local LOOK_SPEED = 7
+
 local NECK_BONE_NAME = "Cat Chubby Head"
 
 local RunService = game:GetService("RunService")
@@ -37,27 +41,26 @@ function AnimatedPetModelClient.new(obj: Model, serviceBag)
 
 	self._actionValue = AttributeValue.new(self._obj, "Action", "Idle")
 
-	local animationController = Instance.new("AnimationController")
-	animationController.Archivable = false
-	animationController.Parent = self._obj
-	self._maid:GiveTask(animationController)
+	self._animationController = Instance.new("AnimationController")
+	self._animationController.Archivable = false
+	self._animationController.Parent = self._obj
+	self._maid:GiveTask(self._animationController)
 
-	local animator = Instance.new("Animator")
-	animator.Archivable = false
-	animator.Parent = animationController
-	self._animator = animator
-	self._maid:GiveTask(animator)
+	self._animator = Instance.new("Animator")
+	self._animator.Archivable = false
+	self._animator.Parent = self._animationController
+	self._maid:GiveTask(self._animator)
 
-	local lookSpring = Spring.new(0)
-	lookSpring.Speed = 7
-
+	-- Play default idle animation as a base layer.
 	self:_promisePlayAnimation("Idle", Enum.AnimationPriority.Idle, 1, 1, true)
 
+	local lookSpring = Spring.new(0)
+	lookSpring.Speed = LOOK_SPEED
+
 	-- TODO: BAD! This shouldn't be fixed, the name should be set per model.
-	local tgBone: Bone = obj:FindFirstChild(NECK_BONE_NAME, true)
+	local bone: Bone = obj:FindFirstChild(NECK_BONE_NAME, true)
 	self._maid:GiveTask(RunService.RenderStepped:Connect(function()
-		local transform = tgBone.TransformedWorldCFrame
-		local pointUnit = transform.UpVector
+		local transform = bone.TransformedWorldCFrame
 
 		local focalPoint = FocalPointUtils.getFocalPoint()
 		local focalUnit = (focalPoint - transform.Position).Unit
@@ -67,25 +70,22 @@ function AnimatedPetModelClient.new(obj: Model, serviceBag)
 		if DEBUG_DRAW then
 			local maid = Maid.new()
 			self._maid._drawMaid = maid
-			maid:GiveTask(Draw.vector(transform.Position, pointUnit, Color3.new(1, 0, 0), self._obj))
+			maid:GiveTask(Draw.vector(transform.Position, transform.UpVector, Color3.new(1, 0, 0), self._obj))
 			maid:GiveTask(Draw.vector(transform.Position, focalUnit, Color3.new(0, 1, 0), self._obj))
 		end
 
-		do
-			local yaw = 0
+		local yaw = 0
 
-			if focalDistance < IGNORE_DISTANCE then
-				local relativeVec = transform:VectorToObjectSpace(focalUnit)
-				local relativeVec2D = Vector2.new(relativeVec.Y, relativeVec.Z)
-				local testYaw = math.atan2(relativeVec2D.Y, relativeVec2D.X)
-				if math.abs(testYaw) < IGNORE_LOOK_ANGLE then
-					yaw = math.clamp(testYaw, -MAX_LOOK_ANGLE, MAX_LOOK_ANGLE)
-				end
+		if focalDistance < IGNORE_DISTANCE then
+			local relativeVec = transform:VectorToObjectSpace(focalUnit)
+			local testYaw = math.atan2(relativeVec.Z, relativeVec.Y)
+			if math.abs(testYaw) < IGNORE_LOOK_ANGLE then
+				yaw = math.clamp(testYaw, -MAX_LOOK_ANGLE, MAX_LOOK_ANGLE)
 			end
-
-			lookSpring.Target = yaw
-			tgBone.Transform *= CFrame.fromAxisAngle(Vector3.xAxis, lookSpring.Position)
 		end
+
+		lookSpring.Target = yaw
+		bone.Transform *= CFrame.fromAxisAngle(Vector3.xAxis, lookSpring.Position)
 	end))
 
 	return self
@@ -102,7 +102,13 @@ end
 
 local random = Random.new()
 
-function AnimatedPetModelClient:_promisePlayAnimation(action: string, priority: Enum.AnimationPriority, fadeTime: number, speed: number, looped: boolean)
+function AnimatedPetModelClient:_promisePlayAnimation(
+	action: string,
+	priority: Enum.AnimationPriority,
+	fadeTime: number,
+	speed: number,
+	looped: boolean
+)
 	return self:_promiseAnimationFromActionName(action):Then(function(animation: Animation)
 		local maid = Maid.new()
 		self._maid[action] = maid

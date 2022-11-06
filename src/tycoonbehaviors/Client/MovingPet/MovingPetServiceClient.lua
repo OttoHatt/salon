@@ -21,10 +21,10 @@ local MovingPetServiceClient = {}
 function MovingPetServiceClient:Init(serviceBag)
 	self._serviceBag = assert(serviceBag, "No serviceBag")
 
+	self._maid = Maid.new()
+
 	self._tycoonService = serviceBag:GetService(TycoonServiceClient)
 	self._behaviorBinders = self._serviceBag:GetService(BehaviorBindersClient)
-
-	self._maid = Maid.new()
 end
 
 function MovingPetServiceClient:Start()
