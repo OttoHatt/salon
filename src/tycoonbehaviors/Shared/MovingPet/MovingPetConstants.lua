@@ -12,7 +12,7 @@ local require = require(script.Parent.loader).load(script)
 local Table = require("Table")
 
 local CONSTANTS = {
-	TIME_FRAME_MOVING = 2.5,
+	TIME_FRAME_MOVING = 3.5,
 	TIME_FRAME_STILL = 1,
 	MOVE_DISTANCE = 16,
 }
