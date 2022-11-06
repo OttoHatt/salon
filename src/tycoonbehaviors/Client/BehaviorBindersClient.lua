@@ -21,6 +21,11 @@ return BinderProvider.new(function(self, serviceBag)
 ]=]
 	self:Add(Binder.new("MovingPet", require("MovingPetClient"), serviceBag))
 --[=[
+	@prop AnimatedPetModel Binder<AnimatedPetModelClient>
+	@within BehaviorBindersClient
+]=]
+	self:Add(Binder.new("AnimatedPetModel", require("AnimatedPetModelClient"), serviceBag))
+--[=[
 	@prop PlayerWallSign Binder<PlayerWallSignClient>
 	@within BehaviorBindersClient
 ]=]

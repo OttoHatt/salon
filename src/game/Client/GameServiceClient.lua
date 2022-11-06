@@ -12,6 +12,8 @@ local StudioTeleportServiceClient = require("StudioTeleportServiceClient")
 local GameUIServiceClient = require("GameUIServiceClient")
 local CurrencyServiceClient = require("CurrencyServiceClient")
 local BehaviorBindersClient = require("BehaviorBindersClient")
+local AnimationProvider = require("AnimationProvider")
+local MovingPetServiceClient = require("MovingPetServiceClient")
 
 local GameServiceClient = {}
 
@@ -24,7 +26,9 @@ function GameServiceClient:Init(serviceBag)
 	self._serviceBag:GetService(StudioTeleportServiceClient)
 	self._serviceBag:GetService(CurrencyServiceClient)
 	self._serviceBag:GetService(GameUIServiceClient)
+	self._serviceBag:GetService(AnimationProvider)
 	self._serviceBag:GetService(BehaviorBindersClient)
+	self._serviceBag:GetService(MovingPetServiceClient)
 end
 
 function GameServiceClient:Start()
