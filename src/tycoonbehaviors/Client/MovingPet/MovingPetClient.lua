@@ -7,6 +7,8 @@
 
 local require = require(script.Parent.loader).load(script)
 
+local DEBUG_DRAW = false
+
 local RunService = game:GetService("RunService")
 
 local BaseObject = require("BaseObject")
@@ -71,6 +73,9 @@ function MovingPet:_handlePathPointsBrio(brio)
 		local petModel = template:Clone()
 		petModel.Parent = self._obj
 
+		-- Bind animations! :)
+		self._behaviorBinders.AnimatedPetModel:BindClient(template)
+
 		-- Draw pets moving across the path.
 		-- Temporary!
 		local totalTime = clockOffset
@@ -101,12 +106,14 @@ function MovingPet:_handlePathPointsBrio(brio)
 			end
 		end))
 
-		topMaid:GiveTask(MovingPetUtils.observeValueBrio(self._obj):Subscribe(function(valueBrio)
-			local value = valueBrio:GetValue()
-			local maid = valueBrio:ToMaid()
+		if DEBUG_DRAW then
+			topMaid:GiveTask(MovingPetUtils.observeValueBrio(self._obj):Subscribe(function(valueBrio)
+				local value = valueBrio:GetValue()
+				local maid = valueBrio:ToMaid()
 
-			maid:GiveTask(Draw.text(petModel, "$" .. value, Color3.fromRGB(36, 94, 181)))
-		end))
+				maid:GiveTask(Draw.text(petModel, "$" .. value, Color3.fromRGB(36, 94, 181)))
+			end))
+		end
 	end)
 end
 

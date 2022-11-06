@@ -6,7 +6,7 @@
 
 local require = require(script.Parent.loader).load(script)
 
-local DEBUG_DRAW = true
+local DEBUG_DRAW = false
 
 local BehaviorBase = require("BehaviorBase")
 local RxBrioUtils = require("RxBrioUtils")
