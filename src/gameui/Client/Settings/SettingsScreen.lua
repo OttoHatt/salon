@@ -8,9 +8,9 @@ local require = require(script.Parent.loader).load(script)
 
 local BaseScreen = require("BaseScreen")
 local Blend = require("Blend")
-local Signal = require("Signal")
 local SettingsToggleGroup = require("SettingsToggleGroup")
 local BasicPaneUtils = require("BasicPaneUtils")
+local SettingsButton = require("SettingsButton")
 
 local SettingsScreen = setmetatable({}, BaseScreen)
 SettingsScreen.ClassName = "SettingsScreen"
@@ -21,16 +21,20 @@ function SettingsScreen.new(obj)
 
 	self:SetDisplayName("Settings")
 
-	self.PressedResetData = Signal.new()
-	self._maid:GiveTask(self.PressedResetData)
-
 	self._toggleGroup = SettingsToggleGroup.new()
 	self._toggleGroup:RegisterToggle("Music", true)
-	self._toggleGroup:RegisterToggle("Extra Speed", false)
+	self._toggleGroup:RegisterToggle("Extra speed", false)
+	self._toggleGroup:RegisterToggle("Pet animations", true)
+	self._toggleGroup:RegisterToggle("Screenspace FX", true)
 	self._maid:GiveTask(BasicPaneUtils.observeVisible(self):Subscribe(function(isVisible)
 		self._toggleGroup:SetVisible(isVisible)
 	end))
 	self._maid:GiveTask(self._toggleGroup)
+
+	self._resetButton = SettingsButton.new()
+	self._resetButton:SetName("Reset Data")
+	self._maid:GiveTask(self._resetButton)
+	self.PressedResetData = self._resetButton.Activated
 
 	self._contentsSizeValue = Instance.new("Vector3Value")
 	self._maid:GiveTask(self._contentsSizeValue)
@@ -45,12 +49,18 @@ function SettingsScreen.new(obj)
 end
 
 function SettingsScreen:_updateLayout()
-	local PANEL_WIDTH = 400
+	local PANEL_WIDTH = 450
 
 	local height = 0
 
 	self._toggleGroup:SetWidth(PANEL_WIDTH)
-	height += self._toggleGroup.Gui.Size.Y.Offset
+	height += self._toggleGroup:GetSizeValue().Value.Y
+
+	height += 32
+
+	self._resetButton:SetWidth(PANEL_WIDTH)
+	self._resetButton.Gui.Position = UDim2.fromOffset(0, height)
+	height += self._resetButton:GetSizeValue().Value.Y
 
 	self._contentsSizeValue.Value = Vector3.new(PANEL_WIDTH, height)
 end
@@ -59,18 +69,8 @@ function SettingsScreen:_render()
 	return self:_renderBase({
 		ContentsSize = self._contentsSizeValue,
 		[Blend.Children] = {
-			Blend.New"UIListLayout" {
-				Padding = UDim.new(0, 16)
-			},
 			self._toggleGroup.Gui,
-			Blend.New("TextButton")({
-				BackgroundColor3 = Color3.new(1, 0, 0),
-				BackgroundTransparency = .9,
-				Size = UDim2.new(0, 100, 0, 40),
-				[Blend.OnEvent("Activated")] = function()
-					self.PressedResetData:Fire()
-				end,
-			}),
+			self._resetButton.Gui,
 		},
 	})
 end
