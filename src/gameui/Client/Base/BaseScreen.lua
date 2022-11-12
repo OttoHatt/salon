@@ -41,6 +41,8 @@ function BaseScreen:SetScale(scale: number)
 end
 
 function BaseScreen:_renderBase(props)
+	local PANEL_PADDING = 64
+
 	local scaleSpring = Blend.Spring(
 		Blend.Computed(BasicPaneUtils.observeVisible(self), function(isVisible)
 			return if isVisible then 1  else 0.7
@@ -59,7 +61,9 @@ function BaseScreen:_renderBase(props)
 	return Blend.New("Frame")({
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.new(0.5, 0, 0.5, 0),
-		Size = UDim2.new(0.4, 0, 0.4, 0),
+		Size = Blend.Computed(props.ContentsSize, function(size: Vector2)
+			return (if size then UDim2.fromOffset(size.X, size.Y) else UDim2.new()) + UDim2.fromOffset(PANEL_PADDING*2, PANEL_PADDING*2)
+		end),
 		BackgroundTransparency = 1,
 		Visible = Blend.Computed(scaleSpring, function(scale)
 			return scale > 0.8
@@ -107,7 +111,7 @@ function BaseScreen:_renderBase(props)
 					Blend.New("ImageButton")({
 						Image = "",
 						BackgroundColor3 = Color3.fromRGB(255, 255, 255),
-						Size = UDim2.new(0.09, 0, 0.09, 0),
+						Size = UDim2.fromOffset(32,32),
 						Position = UDim2.new(0.98, 0, 0, 0),
 						AnchorPoint = Vector2.one / 2,
 						[Blend.OnEvent("Activated")] = function()
@@ -139,10 +143,10 @@ function BaseScreen:_renderBase(props)
 						BackgroundTransparency = 1,
 						[Blend.Children] = {
 							Blend.New("UIPadding")({
-								PaddingTop = UDim.new(0, 64),
-								PaddingBottom = UDim.new(0, 64),
-								PaddingLeft = UDim.new(0, 64),
-								PaddingRight = UDim.new(0, 64),
+								PaddingTop = UDim.new(0, PANEL_PADDING),
+								PaddingBottom = UDim.new(0, PANEL_PADDING),
+								PaddingLeft = UDim.new(0, PANEL_PADDING),
+								PaddingRight = UDim.new(0, PANEL_PADDING),
 							}),
 							props[Blend.Children],
 						},
