@@ -9,6 +9,7 @@ local require = require(script.Parent.loader).load(script)
 local BaseScreen = require("BaseScreen")
 local Blend = require("Blend")
 local Signal = require("Signal")
+local SettingsToggle = require("SettingsToggle")
 
 local SettingsScreen = setmetatable({}, BaseScreen)
 SettingsScreen.ClassName = "SettingsScreen"
@@ -22,6 +23,14 @@ function SettingsScreen.new(obj)
 	self.PressedResetData = Signal.new()
 	self._maid:GiveTask(self.PressedResetData)
 
+	self._musicToggle = SettingsToggle.new(true)
+	self._musicToggle:SetName("Music")
+	self._maid:GiveTask(self._musicToggle)
+
+	self._speedToggle = SettingsToggle.new(false)
+	self._speedToggle:SetName("Extra Speed")
+	self._maid:GiveTask(self._speedToggle)
+
 	self._maid:GiveTask(self:_render():Subscribe(function(gui)
 		self.Gui = gui
 	end))
@@ -32,6 +41,11 @@ end
 function SettingsScreen:_render()
 	return self:_renderBase({
 		[Blend.Children] = {
+			Blend.New"UIListLayout" {
+				Padding = UDim.new(0, 16)
+			},
+			self._musicToggle.Gui,
+			self._speedToggle.Gui,
 			Blend.New("TextButton")({
 				BackgroundColor3 = Color3.new(1, 0, 0),
 				BackgroundTransparency = 0,
