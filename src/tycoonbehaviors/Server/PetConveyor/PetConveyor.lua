@@ -19,6 +19,7 @@ local TycoonBindersServer = require("TycoonBindersServer")
 local BinderUtils = require("BinderUtils")
 local ObservableList = require("ObservableList")
 local Signal = require("Signal")
+local MovingPetModelProvider = require("MovingPetModelProvider")
 
 local PetConveyor = setmetatable({}, BehaviorBase)
 PetConveyor.ClassName = "PetConveyor"
@@ -30,6 +31,7 @@ function PetConveyor.new(obj, serviceBag)
 	self._serviceBag = assert(serviceBag, "No serviceBag")
 	self._behaviorBinders = self._serviceBag:GetService(BehaviorBindersServer)
 	self._tycoonBinders = self._serviceBag:GetService(TycoonBindersServer)
+	self._movingPetModelProvider = self._serviceBag:GetService(MovingPetModelProvider)
 
 	self.CycleStarted = Signal.new()
 	self._maid:GiveTask(self.CycleStarted)
@@ -55,12 +57,15 @@ function PetConveyor.new(obj, serviceBag)
 			local maid = Maid.new()
 
 			-- Create pet!
+			-- TODO: Streamline into new 'MovingPetModel' utils or something.
+			-- We shouldn't be accessing attributes directly, that sucks...
+			local petModel = MovingPetUtils.getModelFromProvider(self._movingPetModelProvider)
 			local movingPet = MovingPetUtils.instantiateWithModel(
 				self._behaviorBinders.MovingPet,
 				self._obj,
-				game.ReplicatedStorage.Assets.Cat,
-				"Kitty",
-				100
+				petModel,
+				petModel.Name,
+				petModel:GetAttribute("InitialValue")
 			)
 			maid:GiveTask(movingPet)
 			maid:GiveTask(self._movingPetsList:Add(movingPet))

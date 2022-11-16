@@ -8,10 +8,17 @@ local require = require(script.Parent.loader).load(script)
 
 local LinkUtils = require("LinkUtils")
 local RxAttributeUtils = require("RxAttributeUtils")
+local RandomUtils = require("RandomUtils")
 
 local MovingPetUtils = {}
 
-function MovingPetUtils.instantiateWithModel(binder, conveyor: Folder, visualModel: Model, cuteName: string, initialValue: number)
+function MovingPetUtils.instantiateWithModel(
+	binder,
+	conveyor: Folder,
+	visualModel: Model,
+	cuteName: string,
+	initialValue: number
+)
 	assert(typeof(conveyor) == "Instance", "Bad conveyor")
 	assert(typeof(visualModel) == "Instance" and visualModel:IsA("Model"), "Bad visual model")
 	assert(typeof(cuteName) == "string", "Bad cuteName")
@@ -52,6 +59,20 @@ end
 function MovingPetUtils.observeValueBrio(movingPet: Folder)
 	-- TODO: Rename this!!! :P
 	return RxAttributeUtils.observeAttributeBrio(movingPet, "Value")
+end
+
+local RANDOM = Random.new()
+
+function MovingPetUtils.getModelFromProvider(provider): Model
+	local choices = provider:GetAll()
+	local weights = table.create(#choices)
+	for i = 1, #choices do
+		local weight = choices[i]:GetAttribute("Weight")
+		assert(typeof(weight) == "number", "Bad moving pet model weight!")
+		weights[i] = weight
+	end
+
+	return RandomUtils.weightedChoice(choices, weights, RANDOM)
 end
 
 return MovingPetUtils
