@@ -3,16 +3,10 @@
 ## Synopsis
 
 Hello!
-This project fell through due to scheduling conflicts. I didn't want the effort I put into tech to go to waste, so I'd like to make its code available to the community.
+This project fell through due to scheduling conflicts. I didn't want the work I put into tech go to waste, so I've made the code available to the community.
+The code describes a 'Pet Salon Tycoon' game; users own a plot, wash pets that slide along a conveyor, buy machines to automate the process, and accrue value as the quality of cleaning improves. At the end of the line, pets mysteriously vanish into the ether - but thankfully, that generates you cash!
 
-The code describes a 'Pet Salon Tycoon' game; users own a plot,
-wash pets that slide along a conveyor, buy machines to autmate the process, and accrue value as the quality of cleaning improves. At the end of the line, pets mysteriously vanish into the ether - but thankfully, that generates you cash!
-
-This project is built with Quenty's [Nevermore](https://github.com/Quenty/NevermoreEngine/); it's a very powerful ecosystem, with few holistic examples available online. Let this serve as inspiration to try it out!
-
-No assets or place files are included. You'll have to piece the project structure together yourself by looking through the code - sorry! I hope that it can still serve as a useful reference.
-
-I hope this will serve as a useful reference in developing your games! Please reach out if you have any questions.
+I hope this will serve as a useful reference! Please [reach out](https://twitter.com/messages/compose?recipient_id=1269492331163660289) if you have any questions.
 
 ## Media
 
@@ -20,6 +14,10 @@ I hope this will serve as a useful reference in developing your games! Please re
 ![Cats on a conveyor belt. One cat is coloured gold, as it is a higher tier than the rest of the pets.](/.github/media/pet_tiers.png)
 
 ## Featureset
+
+This project is built with Quenty's [Nevermore](https://github.com/Quenty/NevermoreEngine/); it's a very powerful ecosystem, but unfortunately with few holistic examples available online. Let this serve as inspiration to try it out!
+
+No assets or place files are included. You'll have to piece the project structure together yourself by looking through the code - sorry! I hope that it can still serve as a useful reference.
 
 - Complete tycoon system.
   - Currencies save/load.
