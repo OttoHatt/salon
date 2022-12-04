@@ -15,7 +15,7 @@ I hope this will serve as a useful reference! Please [reach out](https://twitter
 
 ## Featureset
 
-This project is built with Quenty's [Nevermore](https://github.com/Quenty/NevermoreEngine/); it's a very powerful ecosystem, but unfortunately with few holistic examples available online. Let this serve as inspiration to try it out!
+This project is built with Quenty's [Nevermore](https://github.com/Quenty/NevermoreEngine/); it's a very powerful ecosystem, but unfortunately learning it can be an uphill battle. There are few holistic examples available online. Let this project serve as a guide and an inspiration in trying it out!
 
 No assets or place files are included. You'll have to piece the project structure together yourself by looking through the code - sorry! I hope that it can still serve as a useful reference.
 
