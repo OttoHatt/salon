@@ -42,16 +42,6 @@
 				"$path": "game/scripts/Client"
 			}
 		},
-		"ReplicatedStorage": {
-			"$className": "ReplicatedStorage",
-			"$ignoreUnknownInstances": true,
-			"Wally": {
-				"$path": "Packages/"
-			},
-			"WallyDev": {
-				"$path": "DevPackages/"
-			}
-		},
 		"SoundService": {
 			"$className": "SoundService",
 			"$ignoreUnknownInstances": true,
