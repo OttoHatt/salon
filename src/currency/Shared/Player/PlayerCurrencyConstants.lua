@@ -1,5 +1,7 @@
 --[=[
 	@class PlayerCurrencyConstants
+
+	Constants for working with player currencies.
 ]=]
 
 local require = require(script.Parent.loader).load(script)

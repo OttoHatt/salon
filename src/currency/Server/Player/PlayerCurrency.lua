@@ -1,7 +1,7 @@
 --[=[
 	@class PlayerCurrency
 
-	Player currency on the server
+	Player currency on the server.
 ]=]
 
 local require = require(script.Parent.loader).load(script)

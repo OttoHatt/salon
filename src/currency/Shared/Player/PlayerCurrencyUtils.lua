@@ -1,5 +1,7 @@
 --[=[
 	@class PlayerCurrencyUtils
+
+	Utils for working with player currencies.
 ]=]
 
 local require = require(script.Parent.loader).load(script)
@@ -18,6 +20,7 @@ function PlayerCurrencyUtils.create(binder)
 
 	local playerCurrency = Instance.new("Folder")
 	playerCurrency.Name = PlayerCurrencyConstants.PLAYER_CURRENCY_NAME
+	playerCurrency.Archivable = false
 
 	binder:Bind(playerCurrency)
 

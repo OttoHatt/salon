@@ -6,6 +6,8 @@
 
 local require = require(script.Parent.loader).load(script)
 
+local CURRENCY_SUBSTORE_KEY = "currency"
+
 local BaseObject = require("BaseObject")
 local PlayerCurrencyUtils = require("PlayerCurrencyUtils")
 local CurrencyBindersServer = require("CurrencyBindersServer")
@@ -31,24 +33,24 @@ function PlayerHasCurrency:_promiseLoadCurrency()
 	self._currencies = PlayerCurrencyUtils.create(self._currencyBindersServer.PlayerCurrency)
 	self._maid:GiveTask(self._currencies)
 
-	self._maid:GivePromise(self._playerDataStoreService:PromiseDataStore(self._obj))
+	self._maid
+		:GivePromise(self._playerDataStoreService:PromiseDataStore(self._obj))
 		:Then(function(dataStore)
 			-- Ensure we've fully loaded before we parent.
 			-- This should ensure the cache is mostly instant.
 
-			local subStore = dataStore:GetSubStore("currency")
+			local subStore = dataStore:GetSubStore(CURRENCY_SUBSTORE_KEY)
 
-			return dataStore:Load("currency", {})
-				:Then(function(currency)
-					for currencyName, value in pairs(currency) do
-						local attributeName = PlayerCurrencyUtils.getAttributeName(currencyName)
-						self._currencies:SetAttribute(attributeName, value)
-					end
+			return dataStore:Load(CURRENCY_SUBSTORE_KEY, {}):Then(function(currency)
+				for currencyName, value in pairs(currency) do
+					local attributeName = PlayerCurrencyUtils.getAttributeName(currencyName)
+					self._currencies:SetAttribute(attributeName, value)
+				end
 
-					self._maid:GiveTask(self._currencies.AttributeChanged:Connect(function(attributeName)
-						self:_handleAttributeChanged(subStore, attributeName)
-					end))
-				end)
+				self._maid:GiveTask(self._currencies.AttributeChanged:Connect(function(attributeName)
+					self:_handleAttributeChanged(subStore, attributeName)
+				end))
+			end)
 		end)
 		:Catch(function(err)
 			warn(("[PlayerHasCurrency] - Failed to load currencies for player. %s"):format(tostring(err)))

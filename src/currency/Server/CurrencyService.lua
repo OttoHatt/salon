@@ -7,18 +7,20 @@
 local require = require(script.Parent.loader).load(script)
 
 local PlayerCurrencyUtils = require("PlayerCurrencyUtils")
+local CurrencyBindersServer = require("CurrencyBindersServer")
 
 local CurrencyService = {}
 
 function CurrencyService:Init(serviceBag)
 	self._serviceBag = assert(serviceBag, "No serviceBag")
 
-	-- External
+	-- External.
 	self._serviceBag:GetService(require("PlayerDataStoreService"))
+	self._serviceBag:GetService(require("CurrencyBindersServer"))
 
-	-- Internal
+	-- Internal.
 	self._serviceBag:GetService(require("CurrencyDiscoveryService"))
-	self._binders = self._serviceBag:GetService(require("CurrencyBindersServer"))
+	self._binders = self._serviceBag:GetService(CurrencyBindersServer)
 end
 
 function CurrencyService:GetPlayerCurrency(player: Player)

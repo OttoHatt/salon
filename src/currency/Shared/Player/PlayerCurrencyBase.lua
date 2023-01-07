@@ -1,7 +1,7 @@
 --[=[
 	@class PlayerCurrencyBase
 
-	Currency object underneath players
+	Base class for currency object underneath players. Server/client agnostic.
 ]=]
 
 local require = require(script.Parent.loader).load(script)

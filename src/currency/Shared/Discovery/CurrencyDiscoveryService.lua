@@ -31,6 +31,8 @@ function CurrencyDiscoveryService:_ensureIntitialization()
 end
 
 function CurrencyDiscoveryService:GetConfig(name: string)
+	assert(typeof(name) == "string", "Bad name")
+
 	local config = self._currencyProvider:Get(name)
 	assert(config, ("[CurrencyDiscovery] Invalid currency %q!"):format(tostring(name)))
 
